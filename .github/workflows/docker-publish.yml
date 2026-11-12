@@ -8,6 +8,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 jobs:
   build-and-push-image:
+    if: github.repository == 'iptv-org/epg'
     runs-on: ubuntu-latest
     permissions:
       contents: read

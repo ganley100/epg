@@ -12,6 +12,7 @@ permissions:
   packages: read
 jobs:
   main:
+    if: github.repository == 'iptv-org/epg'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
