@@ -1,6 +1,7 @@
-# Builds a TV guide (XMLTV) for the channels of the iptv-org US playlist and publishes it on the
+# Builds TV guides (XMLTV) for the channels of the iptv-org US and UK playlists and publishes them on the
 # "shelf-guide" branch, three times a day:
-#   https://raw.githubusercontent.com/ganley100/epg/shelf-guide/guide.xml.gz
+#   https://raw.githubusercontent.com/ganley100/epg/shelf-guide/guide.xml.gz      (US)
+#   https://raw.githubusercontent.com/ganley100/epg/shelf-guide/guide-uk.xml.gz   (UK)
 # shelf/make_channels.py picks one working guide site per channel (pictures first).
 
 name: Shelf guide
@@ -26,6 +27,19 @@ jobs:
   grab:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - country: us
+            file: guide
+            playlist: https://iptv-org.github.io/iptv/countries/us.m3u
+            sites: zap2it.com,pluto.tv,plex.tv,tvguide.com,tvpassport.com,xumo.tv,distro.tv
+          # Sky first: a portrait poster for every show. Then Pluto and Plex (their own channels), then Freeview and the rest.
+          - country: uk
+            file: guide-uk
+            playlist: https://iptv-org.github.io/iptv/countries/uk.m3u
+            sites: sky.com,pluto.tv,plex.tv,freeview.co.uk,player.ee.co.uk,virgintvgo.virginmedia.com,tv24.co.uk,mytelly.co.uk
     steps:
       - uses: actions/checkout@v4
 
@@ -37,38 +51,67 @@ jobs:
       - name: Install
         run: npm ci --no-audit --no-fund
 
-      - name: Channels in the US playlist
-        run: python3 shelf/make_channels.py https://iptv-org.github.io/iptv/countries/us.m3u shelf/us.channels.xml
+      - name: Channels in the ${{ matrix.country }} playlist
+        env:
+          SHELF_COUNTRY: ${{ matrix.country }}
+          SHELF_SITES: ${{ matrix.sites }}
+        run: python3 shelf/make_channels.py ${{ matrix.playlist }} shelf/${{ matrix.country }}.channels.xml
 
       - name: Grab two days of guide
         run: |
           mkdir -p out
-          npm run grab --- --channels=shelf/us.channels.xml --output=out/guide.xml --days=2 --maxConnections=10 --timeout=20000
-          test -s out/guide.xml
+          npm run grab --- --channels=shelf/${{ matrix.country }}.channels.xml --output=out/${{ matrix.file }}.xml --days=2 --maxConnections=10 --timeout=20000
+          test -s out/${{ matrix.file }}.xml
 
       - name: Posters for every show
         run: |
-          python3 shelf/posters.py out/guide.xml
-          gzip -9 -k -f out/guide.xml
+          python3 shelf/posters.py out/${{ matrix.file }}.xml
+          gzip -9 -k -f out/${{ matrix.file }}.xml
           ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.file }}
+          path: out/${{ matrix.file }}.xml*
+          retention-days: 2
+
+  publish:
+    needs: grab
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+
+      # A country whose grab failed keeps its last published guide.
+      - name: Keep guides that weren't rebuilt
+        run: |
+          cd out
+          for f in guide guide-uk; do
+            if [ ! -s $f.xml.gz ]; then
+              curl -fsSL -o $f.xml.gz "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/$f.xml.gz" && gunzip -k -f $f.xml.gz || true
+            fi
+          done
+          ls -la
 
       - name: Publish to the shelf-guide branch
         run: |
           cd out
-          shows=$(grep -c '<programme' guide.xml || true)
-          channels=$(grep -o '<programme [^>]*channel="[^"]*"' guide.xml | sed 's/.*channel="//' | sort -u | wc -l)
-          cat > README.md <<MD
-          # Shelf guide
-
-          TV guide (XMLTV) for the channels of the iptv-org US playlist: ${channels} channels, ${shows} shows.
-          Updated $(date -u '+%Y-%m-%d %H:%M') UTC, three times a day.
-
-          - Compressed: https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/guide.xml.gz
-          - Plain: https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/guide.xml
-          MD
+          line() { [ -s "$1.xml" ] || return 0; s=$(grep -c '<programme' "$1.xml" || true); c=$(grep -o '<programme [^>]*channel="[^"]*"' "$1.xml" | sed 's/.*channel="//' | sort -u | wc -l); echo "- $2: ${c} channels, ${s} shows. https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/$1.xml.gz"; }
+          {
+            echo "# Shelf guide"
+            echo
+            echo "TV guides (XMLTV) for the channels of the iptv-org playlists. Updated $(date -u '+%Y-%m-%d %H:%M') UTC, three times a day."
+            echo
+            line guide "US (iptv-org us.m3u)"
+            line guide-uk "UK (iptv-org uk.m3u)"
+          } > README.md
+          cat README.md
           git init -q -b shelf-guide
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add guide.xml.gz guide.xml README.md
-          git commit -qm "Guide $(date -u '+%Y-%m-%d %H:%M') UTC: ${channels} channels"
+          git add -A
+          git commit -qm "Guides $(date -u '+%Y-%m-%d %H:%M') UTC"
           git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" shelf-guide

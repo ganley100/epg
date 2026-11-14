@@ -16,6 +16,11 @@ OUT = sys.argv[2] if len(sys.argv) > 2 else "shelf/us.channels.xml"
 # Pluto and Plex give pictures for their own channels; TV Guide and TV Passport fill in the rest.
 # tvtv.us is left out: it refuses GitHub's servers.
 SITES = ["zap2it.com", "pluto.tv", "plex.tv", "tvguide.com", "tvpassport.com", "xumo.tv", "distro.tv"]
+# Another country's list: SHELF_SITES="sky.com,freeview.co.uk,..." (best first) and SHELF_COUNTRY="uk".
+import os
+if os.environ.get("SHELF_SITES"):
+    SITES = [x.strip() for x in os.environ["SHELF_SITES"].split(",") if x.strip()]
+COUNTRY = os.environ.get("SHELF_COUNTRY", "us")
 
 # Zap2it lists channels by Gracenote code (no channel IDs): these are the names they stand for.
 ZAP = {
@@ -61,7 +66,9 @@ for i in sorted(ids):
 def files(site):
     fs = sorted(glob.glob(f"sites/{site}/*.channels.xml"))
     # The US list first, then the rest (English entries are preferred below anyway).
-    return sorted(fs, key=lambda f: (0 if re.search(r"_us\.channels\.xml$", f) else 1 if "_all" in f else 2, f))
+    codes = {"us": ("us",), "uk": ("uk", "gb")}.get(COUNTRY, (COUNTRY,))
+    mine = lambda f: any(re.search(rf"_{c}\.channels\.xml$", f) for c in codes)
+    return sorted(fs, key=lambda f: (0 if mine(f) else 1 if "_all" in f else 2, f))
 
 chosen = {}  # playlist id -> (site, site_id, lang, name)
 
