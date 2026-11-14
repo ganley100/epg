@@ -5,6 +5,7 @@ built with this repository's grabber by `.github/workflows/shelf-guide.yml` thre
 
     https://raw.githubusercontent.com/ganley100/epg/shelf-guide/guide.xml.gz
 
-`make_channels.py` lists the playlist's channels that a guide site covers, one site per channel (Pluto and
-Plex first for their show pictures, then TV Guide and TV Passport for cable channels), using the playlist's
-own channel IDs so players match them directly. Run by hand with Actions → Shelf guide → Run workflow.
+`make_channels.py` lists the playlist's channels that a guide site covers, one site per channel: Zap2it
+(Gracenote, the data cable boxes use, with a poster for every show) for cable channels, Pluto and Plex for
+their own channels, then TV Guide and TV Passport, using the playlist's own channel IDs so players match them
+directly. `posters.py` makes every show picture a poster (Gracenote's posters, Pluto's 2:3 posters). Run by hand with Actions → Shelf guide → Run workflow.

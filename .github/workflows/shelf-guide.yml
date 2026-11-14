@@ -43,14 +43,18 @@ jobs:
       - name: Grab two days of guide
         run: |
           mkdir -p out
-          npm run grab --- --channels=shelf/us.channels.xml --output=out/guide.xml --gzip --days=2 --maxConnections=10 --timeout=20000
-          ls -la out
+          npm run grab --- --channels=shelf/us.channels.xml --output=out/guide.xml --days=2 --maxConnections=10 --timeout=20000
           test -s out/guide.xml
+
+      - name: Posters for every show
+        run: |
+          python3 shelf/posters.py out/guide.xml
+          gzip -9 -k -f out/guide.xml
+          ls -la out
 
       - name: Publish to the shelf-guide branch
         run: |
           cd out
-          test -f guide.xml.gz || gzip -9 -k guide.xml
           shows=$(grep -c '<programme' guide.xml || true)
           channels=$(grep -o '<programme [^>]*channel="[^"]*"' guide.xml | sed 's/.*channel="//' | sort -u | wc -l)
           cat > README.md <<MD

@@ -21,7 +21,8 @@ module.exports = {
     data({ date, channel }) {
       const [device, lineupId, headendId, countryCode, postalCode, prgsvcid] = channel.site_id.split('/')
 
-      const timestamp = dayjs(date).unix().toString()
+      // From the start of the day: starting at the current time misses most of the day's shows.
+      const timestamp = dayjs(date).startOf('day').unix().toString()
 
       return {
         lineupId,
