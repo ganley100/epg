@@ -65,6 +65,7 @@ jobs:
 
       - name: Posters for every show
         run: |
+          python3 shelf/share.py shelf/${{ matrix.country }}.channels.xml out/${{ matrix.file }}.xml
           python3 shelf/posters.py out/${{ matrix.file }}.xml
           gzip -9 -k -f out/${{ matrix.file }}.xml
           ls -la out
