@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-A poster for every show that can have one. Shows in the guide with no picture, or only a wide still, are looked up
-by title on TVmaze (free, no key) and, when the TMDB_KEY secret is set, on TMDB; the poster goes into the guide.
+A wide 16:9 thumbnail for every show that can have one. Shows in the guide with no picture, or only a portrait
+poster, are looked up by title on TVmaze (its "background" pictures; free, no key) and, when the TMDB_KEY secret is
+set, on TMDB (backdrops); the thumbnail goes into the guide.
 Answers are kept in a cache (published next to the guide) so each run only asks about titles it hasn't seen,
 at most MAX_LOOKUPS a run, within TVmaze's limit of 20 requests per 10 seconds.
 
@@ -18,8 +19,9 @@ try: cache = json.load(open(cache_path))
 except Exception: cache = {}
 
 def is_poster(u):
-    return bool(re.search(r"tmsimg\.com/assets/[^/]*_v\d", u)) or "/poster.jpg" in u or "image.tmdb.org" in u \
-        or "static.tvmaze.com" in u or "/3-4/" in u
+    return bool(re.search(r"tmsimg\.com/assets/[^/]*_v\d", u)) or "/poster.jpg" in u or "/w500/" in u or "/w342/" in u \
+        or "medium_portrait" in u or "/3-4/" in u
+def is_wide(u): return bool(u) and not is_poster(u) and "colorLogo" not in u
 
 # Not shows: nothing to find (local slots, infomercials, news blocks, off-air)
 JUNK = re.compile(r"^(local program|paid program|programa pagado|infomercial|sign ?off|off air|to be announced|tba|"
@@ -46,8 +48,16 @@ def tvmaze(title):
     d = get("https://api.tvmaze.com/search/shows?q=" + urllib.parse.quote(title)) or []
     for hit in d:
         s = hit.get("show") or {}
-        if key(s.get("name", "")) == key(title) and s.get("image"):
-            return s["image"].get("medium") or s["image"].get("original")
+        if key(s.get("name", "")) != key(title): continue
+        time.sleep(0.55)
+        best, score = None, 1e9
+        for im in get(f"https://api.tvmaze.com/shows/{s['id']}/images") or []:
+            if im.get("type") != "background": continue
+            o = (im.get("resolutions") or {}).get("original") or {}
+            w = o.get("width") or 1280
+            sc = abs(w - 1280) - (400 if im.get("main") else 0)
+            if w >= 600 and o.get("url") and sc < score: best, score = o["url"], sc
+        return best
     return None
 
 def tmdb(title):
@@ -56,8 +66,8 @@ def tmdb(title):
         time.sleep(0.05)
         d = get(f"https://api.themoviedb.org/3/search/{kind}?api_key={TMDB}&query=" + urllib.parse.quote(title)) or {}
         for r in d.get("results", [])[:8]:
-            if key(r.get(field, "")) == key(title) and r.get("poster_path"):
-                return "https://image.tmdb.org/t/p/w342" + r["poster_path"]
+            if key(r.get(field, "")) == key(title) and r.get("backdrop_path"):
+                return "https://image.tmdb.org/t/p/w780" + r["backdrop_path"]
     return None
 
 xml = open(guide, encoding="utf-8").read()
@@ -66,7 +76,7 @@ need = {}
 for m in prog_re.finditer(xml):
     p = m.group(0)
     icon = re.search(r'<icon src="([^"]*)"', p)
-    if icon and is_poster(icon.group(1)): continue
+    if icon and is_wide(icon.group(1)): continue
     t = html.unescape(html.unescape(re.search(r"<title[^>]*>(.*?)</title>", p, re.S).group(1))).strip()
     if t and not JUNK.match(t): need[t] = need.get(t, 0) + 1
 
@@ -82,7 +92,7 @@ def fix(m):
     global found
     p = m.group(0)
     icon = re.search(r'<icon src="([^"]*)"', p)
-    if icon and is_poster(icon.group(1)): return p
+    if icon and is_wide(icon.group(1)): return p
     t = html.unescape(html.unescape(re.search(r"<title[^>]*>(.*?)</title>", p, re.S).group(1))).strip()
     u = cache.get(t)
     if not u: return p
@@ -95,5 +105,5 @@ xml = prog_re.sub(fix, xml)
 open(guide, "w", encoding="utf-8").write(xml)
 json.dump(cache, open(cache_path, "w"), ensure_ascii=False, sort_keys=True)
 hits = sum(1 for v in cache.values() if v)
-print(f"titles needing a poster: {len(need)}; looked up now: {asked}; known posters: {hits} of {len(cache)} titles; "
-      f"shows given a poster: {found}")
+print(f"titles needing a thumbnail: {len(need)}; looked up now: {asked}; known thumbnails: {hits} of {len(cache)} titles; "
+      f"shows given a thumbnail: {found}")
