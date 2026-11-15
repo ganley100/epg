@@ -74,6 +74,9 @@ jobs:
         run: |
           python3 shelf/share.py shelf/${{ matrix.country }}.channels.xml out/${{ matrix.file }}.xml
           python3 shelf/posters.py out/${{ matrix.file }}.xml
+          # Gracenote wide art (Roku's listings): the show's Gracenote poster instead.
+          curl -fsSL -o out/gnposters-${{ matrix.country }}.json "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/gnposters-${{ matrix.country }}.json" || echo '{}' > out/gnposters-${{ matrix.country }}.json
+          python3 shelf/gracenote_posters.py out/${{ matrix.file }}.xml out/gnposters-${{ matrix.country }}.json
           # Shows still without a poster: TVmaze (and TMDB with the TMDB_KEY secret), remembered between runs.
           curl -fsSL -o out/posters-${{ matrix.country }}.json "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/posters-${{ matrix.country }}.json" || echo '{}' > out/posters-${{ matrix.country }}.json
           python3 shelf/fill_posters.py out/${{ matrix.file }}.xml out/posters-${{ matrix.country }}.json
@@ -86,6 +89,7 @@ jobs:
           path: |
             out/${{ matrix.file }}.xml*
             out/posters-${{ matrix.country }}.json
+            out/gnposters-${{ matrix.country }}.json
           retention-days: 2
 
   publish:
@@ -108,6 +112,7 @@ jobs:
             fi
           done
           for c in us uk; do
+            [ -s gnposters-$c.json ] || curl -fsSL -o gnposters-$c.json "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/gnposters-$c.json" || true
             [ -s posters-$c.json ] || curl -fsSL -o posters-$c.json "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/posters-$c.json" || true
           done
           ls -la
