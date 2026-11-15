@@ -74,6 +74,9 @@ jobs:
         run: |
           python3 shelf/share.py shelf/${{ matrix.country }}.channels.xml out/${{ matrix.file }}.xml
           python3 shelf/posters.py out/${{ matrix.file }}.xml
+          # Cable shows: Gracenote's own 16:9 title art in place of their posters (what cable boxes show).
+          curl -fsSL -o out/gracenote-${{ matrix.country }}.json "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/gracenote-${{ matrix.country }}.json" || echo '{}' > out/gracenote-${{ matrix.country }}.json
+          python3 shelf/gracenote_wide.py out/${{ matrix.file }}.xml out/gracenote-${{ matrix.country }}.json
           # Shows still without a wide thumbnail: TVmaze (and TMDB with the TMDB_KEY secret), remembered between runs.
           curl -fsSL -o out/thumbs-${{ matrix.country }}.json "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/thumbs-${{ matrix.country }}.json" || echo '{}' > out/thumbs-${{ matrix.country }}.json
           python3 shelf/fill_posters.py out/${{ matrix.file }}.xml out/thumbs-${{ matrix.country }}.json
@@ -86,6 +89,7 @@ jobs:
           path: |
             out/${{ matrix.file }}.xml*
             out/thumbs-${{ matrix.country }}.json
+            out/gracenote-${{ matrix.country }}.json
           retention-days: 2
 
   publish:
@@ -108,6 +112,7 @@ jobs:
             fi
           done
           for c in us uk; do
+            [ -s gracenote-$c.json ] || curl -fsSL -o gracenote-$c.json "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/gracenote-$c.json" || true
             [ -s thumbs-$c.json ] || curl -fsSL -o thumbs-$c.json "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/thumbs-$c.json" || true
           done
           ls -la
