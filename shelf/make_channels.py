@@ -127,7 +127,8 @@ for site in SITES:
 NAME_SITES = [x.strip() for x in os.environ.get("SHELF_NAME_SITES", "").split(",") if x.strip()] or SITES
 codes = {"us": ("us",), "uk": ("uk", "gb")}.get(COUNTRY, (COUNTRY,))
 def name_key(n):
-    s = re.sub(r"\s*\((\d{3,4}p|\d+k)\)|\s*\[[^\]]*\]", "", (n or "").lower())
+    s = re.sub(r"\s*\((\d{3,4}p|\d+k)\)|\s*\[[^\]]*\]|\s*\((united states|usa|us)\)", "", (n or "").lower())
+    s = re.sub(r"\s+(usa|us|america|east|national)$", "", s.strip())
     s = re.sub(r"\b(hd|tv|channel|network|the)\b", " ", s)
     return compact(s)
 wanted = {}
@@ -150,6 +151,20 @@ for site in NAME_SITES:
                 if pid not in chosen:
                     chosen[pid] = (site, sid, "en", m.group(2)); by_name_found += 1
 print(f"found by name: {by_name_found}")
+
+# Third: a network's local carriers ("Roar.us@KOKITV", "StoryTelevision.us@WCIUTV") show the network's national
+# schedule: they share the listing of another feed of that network. Not PBS or local news (their own schedules),
+# and not West/Pacific feeds (three hours later).
+shared = 0
+for pid in sorted(ids):
+    if pid in chosen: continue
+    base, _, feed = pid.partition("@")
+    if base.split(".")[0].lower().startswith(("pbs", "news12", "abc", "cbs", "nbc", "fox", "cw")) or re.search(r"west|pacific|mountain", feed, re.I):
+        continue
+    sib = next((o for o in by_base.get(base, []) if o in chosen and not re.search(r"west|pacific|mountain", o.partition("@")[2], re.I)), None)
+    if sib:
+        chosen[pid] = chosen[sib]; shared += 1
+print(f"network carriers sharing a feed's listing: {shared}")
 
 lines = ['<?xml version="1.0" encoding="UTF-8"?>', "<channels>"]
 ORDER = SITES + [x for x in NAME_SITES if x not in SITES]
