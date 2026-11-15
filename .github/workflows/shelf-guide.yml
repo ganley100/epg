@@ -70,7 +70,7 @@ jobs:
       - name: Thumbnails for every show
         env:
           TMDB_KEY: ${{ secrets.TMDB_KEY }}
-          MAX_LOOKUPS: '1800'
+          MAX_LOOKUPS: '700'
         run: |
           python3 shelf/share.py shelf/${{ matrix.country }}.channels.xml out/${{ matrix.file }}.xml
           python3 shelf/posters.py out/${{ matrix.file }}.xml
