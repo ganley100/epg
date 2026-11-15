@@ -17,7 +17,8 @@ except Exception: cache = {}
 now = time.time()
 
 xml = open(guide, encoding="utf-8").read()
-poster = re.compile(r'https://demo\.tmsimg\.com/assets/(p\d+)_[a-z]+_v\d+_[a-z]+\.jpg')
+# Gracenote posters, also as the Roku Channel serves them (images.sr.roku.com/…/gracenote/assets/p…_v…).
+poster = re.compile(r'https://(?:demo\.tmsimg\.com|images\.sr\.roku\.com/[^"\s]*?/gracenote)/assets/(p\d+)_[a-z]+_v\d+_[a-z]+\.jpg(?:\?[^"\s<]*)?')
 ids = sorted(set(m.group(1) for m in poster.finditer(xml)))
 
 def exists(url):

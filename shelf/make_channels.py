@@ -166,6 +166,42 @@ for pid in sorted(ids):
         chosen[pid] = chosen[sib]; shared += 1
 print(f"network carriers sharing a feed's listing: {shared}")
 
+# Pictures first: Gracenote (zap2it) stays for cable and premium channels. Every other channel that got a guide
+# without pictures (TV Guide, TV Passport, DirecTV, Plex…) or none moves to the free services that have pictures
+# for it, best first: the Roku Channel (Gracenote's wide art), Pluto, Samsung TV Plus, WhaleTV+, Distro.
+PIC_ORDER = ["roku", "pluto.tv", "pluto", "samsung", "watch.whaletvplus.com", "distro.tv"]
+KEEP = {"zap2it.com", "sky.com", "pluto.tv"}
+def source_of(site, sid):
+    if site != "i.mjh.nz": return site
+    t = sid.split("/")[0].lower()
+    return "roku" if t.startswith("roku") else "pluto" if t.startswith("pluto") else "samsung" if t.startswith("samsung") else t
+pic_index = {}  # key -> (rank, site, sid, name)
+for site in ("i.mjh.nz", "pluto.tv", "watch.whaletvplus.com", "distro.tv"):
+    for f in files(site):
+        country = re.search(r"_([a-z]{2})\.channels\.xml$", f)
+        if country and country.group(1) not in codes and site != "i.mjh.nz": continue
+        for m in re.finditer(r'<channel ([^>]*)>([^<]*)</channel>', open(f, encoding="utf-8").read()):
+            attrs = dict(re.findall(r'(\w+)="([^"]*)"', m.group(1)))
+            sid = attrs.get("site_id", "")
+            c = re.match(r"^[^#]*/([a-z]{2})#", sid)
+            if c and c.group(1) not in codes: continue
+            src = source_of(site, sid)
+            if src not in PIC_ORDER or (src == "roku" and COUNTRY != "us"): continue   # Roku's guide is the US one
+            rank = PIC_ORDER.index(src)
+            for k in {name_key(m.group(2)), "id:" + attrs.get("xmltv_id", "").split("@")[0]}:
+                if len(k) < 4 or k == "id:": continue
+                if k not in pic_index or rank < pic_index[k][0]:
+                    pic_index[k] = (rank, site, sid, m.group(2))
+pl_names = {m.group(1): m.group(2) for m in re.finditer(r'#EXTINF[^\n]*?tvg-id="([^"]+)"[^\n]*,([^\n]+)', text)}
+moved = 0
+for pid in sorted(ids):
+    cur = chosen.get(pid)
+    if cur and (cur[0] in KEEP or source_of(cur[0], cur[1]) in ("roku", "pluto", "samsung")): continue
+    hit = pic_index.get("id:" + pid.split("@")[0]) or pic_index.get(name_key(pl_names.get(pid, "")))
+    if hit:
+        chosen[pid] = (hit[1], hit[2], "en", hit[3]); moved += 1
+print(f"moved to a free service with pictures: {moved}")
+
 lines = ['<?xml version="1.0" encoding="UTF-8"?>', "<channels>"]
 ORDER = SITES + [x for x in NAME_SITES if x not in SITES]
 for pid, (site, sid, lang, name) in sorted(chosen.items(), key=lambda kv: (ORDER.index(kv[1][0]), kv[0])):
