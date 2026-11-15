@@ -35,11 +35,14 @@ jobs:
             file: guide
             playlist: https://iptv-org.github.io/iptv/countries/us.m3u
             sites: zap2it.com,pluto.tv,plex.tv,tvguide.com,tvpassport.com,xumo.tv,distro.tv
+            # Channels still without a guide, found by name (pictures first, then text-only listings)
+            name_sites: zap2it.com,pluto.tv,plex.tv,i.mjh.nz,watch.whaletvplus.com,tvguide.com,tvpassport.com,xumo.tv,distro.tv,directv.com,ontvtonight.com,tvinsider.com,watchyour.tv
           # Sky first: a portrait poster for every show. Then Pluto and Plex (their own channels), then Freeview and the rest.
           - country: uk
             file: guide-uk
             playlist: https://iptv-org.github.io/iptv/countries/uk.m3u
             sites: sky.com,pluto.tv,plex.tv,freeview.co.uk,player.ee.co.uk,virgintvgo.virginmedia.com,tv24.co.uk,mytelly.co.uk
+            name_sites: sky.com,pluto.tv,plex.tv,i.mjh.nz,freeview.co.uk,tv24.co.uk,watch.whaletvplus.com,mytelly.co.uk
     steps:
       - uses: actions/checkout@v4
 
@@ -55,6 +58,7 @@ jobs:
         env:
           SHELF_COUNTRY: ${{ matrix.country }}
           SHELF_SITES: ${{ matrix.sites }}
+          SHELF_NAME_SITES: ${{ matrix.name_sites }}
         run: python3 shelf/make_channels.py ${{ matrix.playlist }} shelf/${{ matrix.country }}.channels.xml
 
       - name: Grab two days of guide

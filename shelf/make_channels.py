@@ -122,8 +122,38 @@ for site in SITES:
             if pid not in chosen:
                 chosen[pid] = (site, attrs["site_id"], attrs.get("lang", "en"), name)
 
+# Second pass: playlist channels still without a guide, found by channel NAME on the sites (their own lists often
+# have no or different IDs). Only lists for this country: i.mjh.nz's "Plex/ca#..." is skipped for the US.
+NAME_SITES = [x.strip() for x in os.environ.get("SHELF_NAME_SITES", "").split(",") if x.strip()] or SITES
+codes = {"us": ("us",), "uk": ("uk", "gb")}.get(COUNTRY, (COUNTRY,))
+def name_key(n):
+    s = re.sub(r"\s*\((\d{3,4}p|\d+k)\)|\s*\[[^\]]*\]", "", (n or "").lower())
+    s = re.sub(r"\b(hd|tv|channel|network|the)\b", " ", s)
+    return compact(s)
+wanted = {}
+for m in re.finditer(r'#EXTINF[^\n]*?tvg-id="([^"]+)"[^\n]*,([^\n]+)', text):
+    if m.group(1) not in chosen:
+        k = name_key(m.group(2))
+        if len(k) >= 3: wanted.setdefault(k, set()).add(m.group(1))
+by_name_found = 0
+for site in NAME_SITES:
+    for f in files(site):
+        country = re.search(r"_([a-z]{2})\.channels\.xml$", f)
+        if country and country.group(1) not in codes: continue
+        for m in re.finditer(r'<channel ([^>]*)>([^<]*)</channel>', open(f, encoding="utf-8").read()):
+            attrs = dict(re.findall(r'(\w+)="([^"]*)"', m.group(1)))
+            sid = attrs.get("site_id", "")
+            c = re.match(r"^[^#]*/([a-z]{2})#", sid)
+            if c and c.group(1) not in codes: continue   # another country's feed
+            if attrs.get("lang", "en") not in ("en", ""): continue
+            for pid in sorted(wanted.get(name_key(m.group(2)), ())):
+                if pid not in chosen:
+                    chosen[pid] = (site, sid, "en", m.group(2)); by_name_found += 1
+print(f"found by name: {by_name_found}")
+
 lines = ['<?xml version="1.0" encoding="UTF-8"?>', "<channels>"]
-for pid, (site, sid, lang, name) in sorted(chosen.items(), key=lambda kv: (SITES.index(kv[1][0]), kv[0])):
+ORDER = SITES + [x for x in NAME_SITES if x not in SITES]
+for pid, (site, sid, lang, name) in sorted(chosen.items(), key=lambda kv: (ORDER.index(kv[1][0]), kv[0])):
     lines.append(f'  <channel site="{site}" site_id="{escape(sid, {chr(34): "&quot;"})}" lang="{lang}" xmltv_id="{escape(pid, {chr(34): "&quot;"})}">{name}</channel>')
 lines.append("</channels>")
 open(OUT, "w", encoding="utf-8").write("\n".join(lines) + "\n")

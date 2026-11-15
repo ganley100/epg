@@ -110,6 +110,7 @@
   <channel site="pluto.tv" site_id="5d2c571faeb3e2738ae27933" lang="en" xmltv_id="5Cops.us@UK">5 Cops</channel>
   <channel site="pluto.tv" site_id="5e8db96bccae160007c71eec" lang="en" xmltv_id="Andromeda.us@UK">Andromeda</channel>
   <channel site="pluto.tv" site_id="611f85396abc84000738417b" lang="en" xmltv_id="BeyondBeliefFactorFiction.us@UK">Beyond Belief: Fact or Fiction</channel>
+  <channel site="pluto.tv" site_id="6304f8d5ffb61000071ab478" lang="en" xmltv_id="CSICrimeSceneInvestigation.de@GB">CSI: Crime Scene Investigation</channel>
   <channel site="pluto.tv" site_id="5ca1df0d50be2571e393ad31" lang="en" xmltv_id="DeadlyWomen.us@UK">Deadly Women</channel>
   <channel site="pluto.tv" site_id="5f6b535a278bfe000799484a" lang="en" xmltv_id="DogtheBountyHunter.us@UK">Dog The Bounty Hunter</channel>
   <channel site="pluto.tv" site_id="5f6b54b9e67cf60007d4cef1" lang="en" xmltv_id="DuckDynasty.us@UK">Duck Dynasty</channel>
@@ -122,6 +123,8 @@
   <channel site="pluto.tv" site_id="5c5c2e9d8002db3c3e0b1c72" lang="en" xmltv_id="HomesUnderHammer.us@UK">Homes Under Hammer</channel>
   <channel site="pluto.tv" site_id="60e452730e76f20007598de8" lang="en" xmltv_id="HomicideHunter.us@UK">Homicide Hunter</channel>
   <channel site="pluto.tv" site_id="61c49f1495f417000731cef0" lang="en" xmltv_id="InsideCrime.us@UK">Inside Crime</channel>
+  <channel site="pluto.tv" site_id="639b558c73423d00071ce624" lang="en" xmltv_id="MoreTVCrime.de@GB">More TV Crime</channel>
+  <channel site="pluto.tv" site_id="645e00d5d3fdde000829463a" lang="en" xmltv_id="MoreTVScifi.de@GB">More TV Sci-fi</channel>
   <channel site="pluto.tv" site_id="6081648340382e0007f73d45" lang="en" xmltv_id="MostHaunted.uk@UK">Most Haunted</channel>
   <channel site="pluto.tv" site_id="6401d85a49839300087b116c" lang="en" xmltv_id="MovieSphere.us@UK">Moviesphere</channel>
   <channel site="pluto.tv" site_id="5bd833b41843b56328bac189" lang="en" xmltv_id="Mythbusters.us@UK">Mythbusters</channel>
@@ -152,10 +155,12 @@
   <channel site="pluto.tv" site_id="5d4bdb635ce813b38639e6a3" lang="en" xmltv_id="PlutoTVWesterns.de@GB">Pluto TV Westerns</channel>
   <channel site="pluto.tv" site_id="5e7cb84a172a0f0007da69e4" lang="de" xmltv_id="RedBullTV.at@UK">Red Bull TV</channel>
   <channel site="pluto.tv" site_id="66f137cb483d460008ece053" lang="en" xmltv_id="RugbyPassTV.uk@SD">Rugby Pass TV</channel>
+  <channel site="pluto.tv" site_id="66276091cee0d900085fe053" lang="en" xmltv_id="SabrinaTheTeenageWitch.de@GB">Sabrina The Teenage Witch</channel>
   <channel site="pluto.tv" site_id="5e9ed47c26ebb000074af566" lang="en" xmltv_id="SensingMurder.us@UK">Sensing Murder</channel>
   <channel site="pluto.tv" site_id="66a10eeb46762a0008201e85" lang="en" xmltv_id="Teletubbies.uk@SD">Teletubbies</channel>
   <channel site="pluto.tv" site_id="65b923f90cb1a100088a03ab" lang="de" xmltv_id="TerraMaterWILD.de@English">Terra Mater WILD</channel>
   <channel site="pluto.tv" site_id="5bb1ad55268cae539bcedb08" lang="en" xmltv_id="ThePetCollective.us@UK">The Pet Collective</channel>
+  <channel site="pluto.tv" site_id="68e8ffee9d1d49e672fe790f" lang="en" xmltv_id="TheYellowCouchwithJeremyLynch.de@GB">The Yellow Couch with Jeremy Lynch</channel>
   <channel site="pluto.tv" site_id="636adc255bcf470007d6e0e2" lang="en" xmltv_id="TopGear.uk@SD">Top Gear</channel>
   <channel site="pluto.tv" site_id="5bd05b4694d45d266bc951f2" lang="en" xmltv_id="UnsolvedMysteries.us@UK">Unsolved Mysteries</channel>
   <channel site="pluto.tv" site_id="60817936fd2d70000763d2b2" lang="en" xmltv_id="WildatHeart.us@UK">Wild at Heart</channel>
@@ -188,7 +193,27 @@
   <channel site="freeview.co.uk" site_id="64257#13144" lang="en" xmltv_id="MBC.uk@HD">MBC</channel>
   <channel site="freeview.co.uk" site_id="64257#16406" lang="en" xmltv_id="TalkTV.uk@SD">Talk</channel>
   <channel site="freeview.co.uk" site_id="64257#23904" lang="en" xmltv_id="Thats70s.uk@SD">That&apos;s 70s</channel>
+  <channel site="tv24.co.uk" site_id="bbc-red-button-2" lang="en" xmltv_id="BBCRedButton2.uk@SD">BBC Red Button 2</channel>
+  <channel site="tv24.co.uk" site_id="bbc-red-button-3" lang="en" xmltv_id="BBCRedButton3.uk@SD">BBC Red Button 3</channel>
+  <channel site="tv24.co.uk" site_id="bbc-red-button-4" lang="en" xmltv_id="BBCRedButton4.uk@SD">BBC Red Button 4</channel>
+  <channel site="tv24.co.uk" site_id="bbc-red-button-5" lang="en" xmltv_id="BBCRedButton5.uk@SD">BBC Red Button 5</channel>
+  <channel site="tv24.co.uk" site_id="bbc-red-button-6" lang="en" xmltv_id="BBCRedButton6.uk@SD">BBC Red Button 6</channel>
+  <channel site="tv24.co.uk" site_id="faith-uk" lang="en" xmltv_id="FaithUK.uk@SD">Faith UK</channel>
+  <channel site="tv24.co.uk" site_id="foodxp" lang="en" xmltv_id="Foodxp.uk@SD">Foodxp</channel>
+  <channel site="tv24.co.uk" site_id="iran-international-hd" lang="en" xmltv_id="IranInternational.uk@SD">Iran International HD</channel>
+  <channel site="tv24.co.uk" site_id="sheffieldive-l" lang="en" xmltv_id="SheffieldLiveTV.uk@SD">Sheffield Live</channel>
+  <channel site="mytelly.co.uk" site_id="1818/brit-asia" lang="en" xmltv_id="BritAsiaTV.uk@HD">Brit Asia</channel>
   <channel site="mytelly.co.uk" site_id="1511/cnbc-uk" lang="en" xmltv_id="CNBCUK.uk@SD">CNBC UK</channel>
   <channel site="mytelly.co.uk" site_id="2116/sanskar" lang="en" xmltv_id="SanskarUK.in@SD">Sanskar</channel>
   <channel site="mytelly.co.uk" site_id="1545/tiny-pop-1" lang="en" xmltv_id="TinyPop.uk@Plus1">Tiny Pop +1</channel>
+  <channel site="i.mjh.nz" site_id="SamsungTVPlus/gb#GB3200005SO" lang="en" xmltv_id="AutenticHistory.de@SD">Autentic History</channel>
+  <channel site="i.mjh.nz" site_id="SamsungTVPlus/gb#GB3200006AZ" lang="en" xmltv_id="AutenticTravel.de@SD">Autentic Travel</channel>
+  <channel site="i.mjh.nz" site_id="SamsungTVPlus/gb#GB3800009F0" lang="en" xmltv_id="FIFAPlusWomen.uk@English">FIFA+ Women</channel>
+  <channel site="i.mjh.nz" site_id="Roku/all#b5cde121f98257329346020e2a60295a" lang="en" xmltv_id="MoonbugKids.uk@SD">Moonbug Kids</channel>
+  <channel site="i.mjh.nz" site_id="Flash/epg#sky-news-weather" lang="en" xmltv_id="SkyNewsWeather.uk@SD">Sky News Weather</channel>
+  <channel site="i.mjh.nz" site_id="Roku/all#eb1dbd690001553eacdf32d7b155b933" lang="en" xmltv_id="SparkTV.uk@SD">SPARK TV</channel>
+  <channel site="i.mjh.nz" site_id="Plex/gb#64305451fc3be5947773c339-66be8cd4871131188099527e" lang="en" xmltv_id="TraceUK.uk@HD">TRACE UK</channel>
+  <channel site="i.mjh.nz" site_id="SamsungTVPlus/gb#GBBC300003UQ" lang="en" xmltv_id="WaterBear.ch@SD">WaterBear</channel>
+  <channel site="i.mjh.nz" site_id="SamsungTVPlus/gb#GB340000289" lang="en" xmltv_id="YAAAS.uk@HD">YAAAS!</channel>
+  <channel site="i.mjh.nz" site_id="SamsungTVPlus/gb#GBBD1100013BJ" lang="en" xmltv_id="ZeeOne.uk@UK">Zee One</channel>
 </channels>
