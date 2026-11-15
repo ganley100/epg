@@ -67,19 +67,16 @@ jobs:
           npm run grab --- --channels=shelf/${{ matrix.country }}.channels.xml --output=out/${{ matrix.file }}.xml --days=2 --maxConnections=10 --timeout=20000
           test -s out/${{ matrix.file }}.xml
 
-      - name: Thumbnails for every show
+      - name: Posters for every show
         env:
           TMDB_KEY: ${{ secrets.TMDB_KEY }}
           MAX_LOOKUPS: '700'
         run: |
           python3 shelf/share.py shelf/${{ matrix.country }}.channels.xml out/${{ matrix.file }}.xml
           python3 shelf/posters.py out/${{ matrix.file }}.xml
-          # Cable shows: Gracenote's own 16:9 title art in place of their posters (what cable boxes show).
-          curl -fsSL -o out/gracenote-${{ matrix.country }}.json "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/gracenote-${{ matrix.country }}.json" || echo '{}' > out/gracenote-${{ matrix.country }}.json
-          python3 shelf/gracenote_wide.py out/${{ matrix.file }}.xml out/gracenote-${{ matrix.country }}.json
-          # Shows still without a wide thumbnail: TVmaze (and TMDB with the TMDB_KEY secret), remembered between runs.
-          curl -fsSL -o out/thumbs-${{ matrix.country }}.json "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/thumbs-${{ matrix.country }}.json" || echo '{}' > out/thumbs-${{ matrix.country }}.json
-          python3 shelf/fill_posters.py out/${{ matrix.file }}.xml out/thumbs-${{ matrix.country }}.json
+          # Shows still without a poster: TVmaze (and TMDB with the TMDB_KEY secret), remembered between runs.
+          curl -fsSL -o out/posters-${{ matrix.country }}.json "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/posters-${{ matrix.country }}.json" || echo '{}' > out/posters-${{ matrix.country }}.json
+          python3 shelf/fill_posters.py out/${{ matrix.file }}.xml out/posters-${{ matrix.country }}.json
           gzip -9 -k -f out/${{ matrix.file }}.xml
           ls -la out
 
@@ -88,8 +85,7 @@ jobs:
           name: ${{ matrix.file }}
           path: |
             out/${{ matrix.file }}.xml*
-            out/thumbs-${{ matrix.country }}.json
-            out/gracenote-${{ matrix.country }}.json
+            out/posters-${{ matrix.country }}.json
           retention-days: 2
 
   publish:
@@ -112,8 +108,7 @@ jobs:
             fi
           done
           for c in us uk; do
-            [ -s gracenote-$c.json ] || curl -fsSL -o gracenote-$c.json "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/gracenote-$c.json" || true
-            [ -s thumbs-$c.json ] || curl -fsSL -o thumbs-$c.json "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/thumbs-$c.json" || true
+            [ -s posters-$c.json ] || curl -fsSL -o posters-$c.json "https://raw.githubusercontent.com/${{ github.repository }}/shelf-guide/posters-$c.json" || true
           done
           ls -la
 

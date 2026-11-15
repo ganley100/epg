@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Makes every show picture in the guide a wide 16:9 thumbnail where the source has one:
+Makes every show picture in the guide a poster:
 - Gracenote (Zap2it) posters: their listed image host (zap2it.tmsimg.com) no longer exists; the same images
   are served by demo.tmsimg.com.
-- Pluto TV: the square tile / poster becomes a wide 16:9 thumbnail (the episode's still, or the show's featured image).
-- Sky (UK): its 16:9 still is kept (a portrait poster from an older run goes back to 16:9).
+- Pluto TV: the square "tile" picture becomes the show's 2:3 poster.
+- Sky (UK): the 16:9 still becomes the show's portrait (3:4) poster, which Sky has for every show.
 
 Usage: python3 shelf/posters.py out/guide.xml
 """
@@ -14,11 +14,9 @@ path = sys.argv[1]
 xml = open(path, encoding="utf-8").read()
 n_gn = xml.count("zap2it.tmsimg.com")
 xml = xml.replace("https://zap2it.tmsimg.com/", "https://demo.tmsimg.com/")
-pluto = re.compile(r'(https?://images\.pluto\.tv/(series|episodes)/[0-9a-f]+)/(?:tile|poster|featuredImage)[^"/?]*\.(?:jpg|png)(?:\?[^"]*)?')
-def wide(m):
-    return m.group(1) + ("/screenshot16_9.jpg" if m.group(2) == "episodes" else "/featuredImage.jpg") + "?fm=jpg&amp;q=75&amp;w=640&amp;h=360"
-xml, n_pl = pluto.subn(wide, xml)
-sky = re.compile(r'(https?://images\.metadata\.sky\.com/pd-image/[0-9a-f-]+)/(?:3-4|16-9)/\d+')
-xml, n_sky = sky.subn(r'\1/16-9/640', xml)
+pluto = re.compile(r'(https?://images\.pluto\.tv/(?:series|channels)/[0-9a-f]+)/tile[^"/?]*\.(?:jpg|png)(?:\?[^"]*)?')
+xml, n_pl = pluto.subn(r'\1/poster.jpg?fm=jpg&amp;q=75&amp;w=600&amp;h=900', xml)
+sky = re.compile(r'(https?://images\.metadata\.sky\.com/pd-image/[0-9a-f-]+)/16-9/\d+')
+xml, n_sky = sky.subn(r'\1/3-4/600', xml)
 open(path, "w", encoding="utf-8").write(xml)
-print(f"Gracenote host fixed: {n_gn}, Pluto thumbnails: {n_pl}, Sky thumbnails: {n_sky}")
+print(f"Gracenote posters: {n_gn}, Pluto posters: {n_pl}, Sky posters: {n_sky}")
